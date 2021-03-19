@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.hardware.Sensor;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Vibrator;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,7 +30,6 @@ import helloandroid.m2dl.gangd4_android_challenge_mobe.R;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.ActionStop;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.ActionType;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.Ball;
-import helloandroid.m2dl.gangd4_android_challenge_mobe.model.DrawCircle;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.IAction;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.MaskScreen;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.Shake;
@@ -42,231 +42,259 @@ import helloandroid.m2dl.gangd4_android_challenge_mobe.views.GameView;
 
 public class GameActivity extends Activity implements View.OnTouchListener, Observer {
 
+    private GameView gv;
+    private Sensor lightSensor;
+    private TextView textView;
+    private Vibrator vibrator;
 
-   private GameView gv;
-   private Sensor lightSensor;
-   private TextView textView;
+    private boolean cycleStart;
 
-   private boolean cycleStart;
+    private List<IAction> actionsQueue;
 
-   private List<IAction> actionsQueue;
+    public enum Scores {
+        SUPER(3),
+        GOOD(2),
+        CLOSE(1);
 
-   public enum Scores {
-      SUPER(3),
-      GOOD(2),
-      CLOSE(1);
+        private final int value;
 
-      private final int value;
+        Scores(int value) {
+            this.value = value;
+        }
 
-      Scores(int value) {
-         this.value = value;
-      }
+        public int getValue() {
+            return value;
+        }
+    }
 
-      public int getValue() {
-         return value;
-      }
-   }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);     //  Fixed Portrait orientation
 
-   @Override
-   protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-              WindowManager.LayoutParams.FLAG_FULLSCREEN);
-      this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-      this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);     //  Fixed Portrait orientation
-      this.actionsQueue = new ArrayList<>();
+        this.actionsQueue = new ArrayList<>();
 
-      this.initListOfRandomActions(10);
+        this.initListOfRandomActions(10);
 
-//      SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-//      Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-//      sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
-//
-//      Sensor lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-//      sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_FASTEST);
+        SharedPreferences.Editor editor = this.getPreferences(MODE_PRIVATE).edit();
+        editor.putFloat("max_light_val", 1);
+        editor.apply();
 
+        this.vibrator = (Vibrator) getApplicationContext().getSystemService(VIBRATOR_SERVICE);
 
-      SharedPreferences.Editor editor = this.getPreferences(MODE_PRIVATE).edit();
-      editor.putFloat("max_light_val", 1);
-      editor.apply();
+        LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
 
-      LinearLayout linearLayout = new LinearLayout(this);
-      linearLayout.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-      LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        this.textView = new TextView(this);
+        this.textView.setText("3");
+        this.textView.setTextColor(Color.BLACK);
+        this.textView.setTextSize(200);
+        this.textView.setGravity(Gravity.CENTER);
+        this.textView.setLayoutParams(params);
+        linearLayout.addView(this.textView);
 
-      this.textView = new TextView(this);
-      this.textView.setText("3");
-      this.textView.setTextColor(Color.BLACK);
-      this.textView.setTextSize(200);
-      this.textView.setGravity(Gravity.CENTER);
-      this.textView.setLayoutParams(params);
-      linearLayout.addView(this.textView);
+        this.addContentView(linearLayout, params);
 
-      this.addContentView(linearLayout, params);
+        GameActivity gameActivity = this;
+        Animation anim = AnimationUtils.loadAnimation(this, R.anim.timer_text_anim);
+        new CountDownTimer(4000, 1000) {
+            long number;
 
-      GameActivity gameActivity = this;
-      Animation anim = AnimationUtils.loadAnimation(this, R.anim.timer_text_anim);
-      new CountDownTimer(4000, 1000) {
-         long number;
-
-         public void onTick(long millisUntilFinished) {
-            number = ((millisUntilFinished / 1000) + 1);
-            if (number == 1) {
-               textView.setText(R.string.go);
-               textView.setTextColor(Color.GREEN);
-            } else {
-               textView.setText(String.valueOf(number - 1));
-               switch ((int) number) {
-                  case 4:
-                     textView.setTextColor(Color.RED);
-                     break;
-                  case 3:
-                     textView.setTextColor(getColor(R.color.orange));
-                     break;
-                  case 2:
-                     textView.setTextColor(Color.YELLOW);
-                     break;
-                  default:
-                     break;
-               }
+            public void onTick(long millisUntilFinished) {
+                number = ((millisUntilFinished / 1000) + 1);
+                if (number == 1) {
+                    textView.setText(R.string.go);
+                    textView.setTextColor(Color.GREEN);
+                } else {
+                    textView.setText(String.valueOf(number - 1));
+                    switch ((int) number) {
+                        case 4:
+                            textView.setTextColor(Color.RED);
+                            break;
+                        case 3:
+                            textView.setTextColor(getColor(R.color.orange));
+                            break;
+                        case 2:
+                            textView.setTextColor(Color.YELLOW);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                textView.startAnimation(anim);
             }
-            textView.startAnimation(anim);
-         }
 
-         public void onFinish() {
-            gv = new GameView(GameActivity.this, gameActivity);
-            actionsQueue.get(0).addObserver(GameActivity.this);
+            public void onFinish() {
+                gv = new GameView(GameActivity.this, gameActivity);
+                actionsQueue.get(0).addObserver(GameActivity.this);
+                System.out.println(actionsQueue.get(0).getDescription());
+                setContentView(gv);
+            }
+        }.start();
+        this.cycleStart = true;
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
+            this.gv.startGame();
+
+            boolean isRed = this.cycleStart && this.gv.checkIfInRed();
+            if (isRed) {
+                this.gv.addScore(Scores.CLOSE.getValue());
+                vibrator.vibrate(200);
+                this.cycleStart = false;
+                this.startNewCycle();
+            }
+
+            boolean isYellow = this.cycleStart && this.gv.checkIfInYellow();
+            if (isYellow) {
+                this.gv.addScore(Scores.GOOD.getValue());
+                vibrator.vibrate(200);
+                this.cycleStart = false;
+                this.startNewCycle();
+            }
+
+            boolean isGreen = this.cycleStart && this.gv.checkIfInGreen();
+            if (isGreen) {
+                this.gv.addScore(Scores.SUPER.getValue());
+                vibrator.vibrate(200);
+                this.cycleStart = false;
+                this.startNewCycle();
+            }
+
+            if (!isRed && !isYellow && !isGreen) {
+                this.cycleStart = false;
+                this.backToEndGameActivity(null);
+            }
+        }
+        return true;
+    }
+
+    public void startNewCycle() {
+        this.gv.initGame(this.gv.getContext());
+        this.cycleStart = true;
+    }
+
+    public void backToEndGameActivity(Ball ball) {
+        Intent intent = new Intent(this, EndGameActivity.class);
+        intent.putExtra("user_score", this.gv.getUserScore());
+        startActivity(intent);
+        ViewGroup vg = (ViewGroup) (gv.getParent());
+        vg.removeView(gv);
+    }
+
+    public void setCycleStart(boolean cycleStart) {
+        this.cycleStart = cycleStart;
+    }
+
+    private void initListOfRandomActions(int number) {
+        Random rand = new Random();
+        for (int i = 0; i < number; i++) {
+            int index = rand.nextInt(8);
+            ActionType type = ActionType.values()[index];
+            switch (type) {
+                case SWIPE_RIGHT:
+                    this.actionsQueue.add(new SwipeRight(this));
+                    break;
+                case SWIPE_LEFT:
+                    this.actionsQueue.add(new SwipeLeft(this));
+                    break;
+                case TOUCH:
+                    this.actionsQueue.add(new Touch(this));
+                    break;
+                case TURN_RIGHT:
+                    this.actionsQueue.add(new TurnRight(this));
+                    break;
+                case TURN_LEFT:
+                    this.actionsQueue.add(new TurnLeft(this));
+                    break;
+                case SHAKE:
+                    this.actionsQueue.add(new Shake(this));
+                    break;
+                case MASK_SCREEN:
+                    this.actionsQueue.add(new MaskScreen(this));
+                    break;
+                case STOP:
+                    this.actionsQueue.add(new ActionStop(this));
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    public IAction popActionFromList() {
+        IAction action = null;
+        if (!this.actionsQueue.isEmpty()) {
+            action = this.actionsQueue.get(0);
+            System.out.println("POPPED : " + action);
+            this.actionsQueue.remove(0);
+        }
+        if (this.actionsQueue.isEmpty()) {
+            this.initListOfRandomActions(10);
+        }
+        return action;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        System.out.println("RESULT SUCCESSSS ? " + arg);
+        IAction currentAction = this.popActionFromList();
+        if (((IAction) o).getType() == currentAction.getType()) {
             System.out.println(actionsQueue.get(0).getActionType());
-            setContentView(gv);
-         }
-      }.start();
-      this.cycleStart = true;
-   }
+            if (currentAction.getType().equals(ActionType.STOP)) {
+                gv.die();
+            } else {
+                defineTiming(); // position de la balle et où elle est
+                currentAction.deleteObserver(this);
+                currentAction = this.actionsQueue.get(0);
+                System.out.println(currentAction.getDescription());
+                currentAction.addObserver(this);
+                // Vibrer
+            }
+        }
+    }
 
-   private void initListOfRandomActions(int number) {
-      Random rand = new Random();
-      for (int i = 0; i < number; i++) {
-         int index = rand.nextInt(8);
-         ActionType type = ActionType.values()[index];
-         switch (type) {
-            case SWIPE_RIGHT:
-               this.actionsQueue.add(new SwipeRight(this));
-               break;
-            case SWIPE_LEFT:
-               this.actionsQueue.add(new SwipeLeft(this));
-               break;
-            case TOUCH:
-               this.actionsQueue.add(new Touch(this));
-               break;
-            case TURN_RIGHT:
-               this.actionsQueue.add(new TurnRight(this));
-               break;
-            case TURN_LEFT:
-               this.actionsQueue.add(new TurnLeft(this));
-               break;
-            case SHAKE:
-               this.actionsQueue.add(new Shake(this));
-               break;
-            case MASK_SCREEN:
-               this.actionsQueue.add(new MaskScreen(this));
-               break;
-            case STOP:
-               this.actionsQueue.add(new ActionStop(this));
-               break;
-            default:
-               break;
-         }
-      }
-   }
+    private void defineTiming() {
+        boolean isRed = this.cycleStart && this.gv.checkIfInRed();
+        if (isRed) {
+            this.gv.addScore(Scores.CLOSE.getValue());
+            this.cycleStart = false;
+            this.startNewCycle();
+        }
 
-   @Override
-   public boolean onTouch(View view, MotionEvent motionEvent) {
-      if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
-         this.gv.startGame();
-      }
-      return true;
-   }
+        boolean isYellow = this.cycleStart && this.gv.checkIfInYellow();
+        if (isYellow) {
+            this.gv.addScore(Scores.GOOD.getValue());
+            this.cycleStart = false;
+            this.startNewCycle();
+        }
 
-   public void startNewCycle() {
-      this.gv.initGame(this.gv.getContext());
-      this.cycleStart = true;
-   }
+        boolean isGreen = this.cycleStart && this.gv.checkIfInGreen();
+        if (isGreen) {
+            this.gv.addScore(Scores.SUPER.getValue());
+            this.cycleStart = false;
+            this.startNewCycle();
+        }
 
-   public void backToEndGameActivity(Ball ball) {
-      Intent intent = new Intent(this, EndGameActivity.class);
-      intent.putExtra("user_score", this.gv.getUserScore());
-      startActivity(intent);
-   }
+        if (!isRed && !isYellow && !isGreen) {
+            this.cycleStart = false;
+            this.backToEndGameActivity(null);
+        }
+    }
 
-   public void setCycleStart(boolean cycleStart) {
-      this.cycleStart = cycleStart;
-   }
+    public List<IAction> getActionsQueue() {
+        return actionsQueue;
+    }
 
-   public IAction popActionFromList() {
-      IAction action = null;
-      if (!this.actionsQueue.isEmpty()) {
-         action = this.actionsQueue.get(0);
-         System.out.println("POPPED : " + action);
-         this.actionsQueue.remove(0);
-      }
-      if (this.actionsQueue.isEmpty()) {
-         this.initListOfRandomActions(10);
-      }
-      return action;
-   }
+    public GameView getGv() {
+        return gv;
+    }
 
-   @Override
-   public void update(Observable o, Object arg) {
-      System.out.println("RESULT SUCCESSSS ? " + arg);
-      IAction currentAction = this.popActionFromList();
-      if (((IAction) o).getType() == currentAction.getType()) {
-         System.out.println(actionsQueue.get(0).getActionType());
-         if (currentAction.getType().equals(ActionType.STOP)) {
-            gv.die();
-         } else {
-            defineTiming(); // position de la balle et où elle est
-            currentAction.deleteObserver(this);
-            currentAction = this.actionsQueue.get(0);
-            currentAction.addObserver(this);
-            // Vibrer
-         }
-      }
-   }
-
-   private void defineTiming() {
-      boolean isRed = this.cycleStart && this.gv.checkIfInRed();
-      if (isRed) {
-         this.gv.addScore(Scores.CLOSE.getValue());
-         this.cycleStart = false;
-         this.startNewCycle();
-      }
-
-      boolean isYellow = this.cycleStart && this.gv.checkIfInYellow();
-      if (isYellow) {
-         this.gv.addScore(Scores.GOOD.getValue());
-         this.cycleStart = false;
-         this.startNewCycle();
-      }
-
-      boolean isGreen = this.cycleStart && this.gv.checkIfInGreen();
-      if (isGreen) {
-         this.gv.addScore(Scores.SUPER.getValue());
-         this.cycleStart = false;
-         this.startNewCycle();
-      }
-
-      if (!isRed && !isYellow && !isGreen) {
-         this.cycleStart = false;
-         this.backToEndGameActivity(null);
-      }
-   }
-
-   public List<IAction> getActionsQueue() {
-      return actionsQueue;
-   }
-
-   public GameView getGv() {
-      return gv;
-   }
 }
