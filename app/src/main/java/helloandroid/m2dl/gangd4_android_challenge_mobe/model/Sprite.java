@@ -36,11 +36,6 @@ public class Sprite {
    }
 
    public void setX(float x) {
-      if (x > this.width + RADIUS) {
-         x = this.width - RADIUS;
-      } else if (x < RADIUS) {
-         x = RADIUS;
-      }
       this.x = x;
    }
 
