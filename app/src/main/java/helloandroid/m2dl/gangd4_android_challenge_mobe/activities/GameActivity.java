@@ -22,6 +22,7 @@ import java.util.Observer;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.ActionType;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.Ball;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.IAction;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.MaskScreen;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.Touch;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.TurnLeft;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.views.GameView;
@@ -61,7 +62,7 @@ public class GameActivity extends Activity implements View.OnTouchListener, Obse
       if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
          this.gv.startGame();
       }
-      IAction turnLeft = new TurnLeft(this);
+      IAction turnLeft = new MaskScreen(this);
       turnLeft.addObserver(this);
       return true;
    }
@@ -83,6 +84,7 @@ public class GameActivity extends Activity implements View.OnTouchListener, Obse
 //         currentAction.deleteObserver(this);
 //         currentAction = getNextAction();
 //         currentAction.addObserver(this);
+      // Vibrer
 //      }
       switch (((IAction)o).getActionType()) {
          case TURN_LEFT:
@@ -96,6 +98,9 @@ public class GameActivity extends Activity implements View.OnTouchListener, Obse
             System.out.println("SUCCESSSSSS V22222");
             o.deleteObserver(this);
             break;
+         case MASK_SCREEN:
+            System.out.println("SUCCESSSSSS");
+            o.deleteObserver(this);
       }
    }
 
