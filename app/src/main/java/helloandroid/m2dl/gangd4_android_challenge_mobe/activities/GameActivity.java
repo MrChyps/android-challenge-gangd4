@@ -69,10 +69,7 @@ public class GameActivity extends Activity implements SensorEventListener, View.
 
          public void onTick(long millisUntilFinished) {
             number = ((millisUntilFinished / 1000) + 1);
-            textView.setText("" + (number - 1));
-            if (number == 1) {
-               textView.setText("GO!");
-            }
+            textView.setText((number == 1) ? "GO" : String.valueOf(number - 1));
          }
 
          public void onFinish() {
