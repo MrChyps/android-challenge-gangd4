@@ -168,9 +168,6 @@ public class GameActivity extends Activity implements View.OnTouchListener, Obse
             case SHAKE:
                this.actionsQueue.add(new Shake(this));
                break;
-            case DRAW_CIRCLE:
-               this.actionsQueue.add(new DrawCircle(this));
-               break;
             case MASK_SCREEN:
                this.actionsQueue.add(new MaskScreen(this));
                break;
