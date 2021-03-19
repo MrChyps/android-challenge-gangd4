@@ -2,4 +2,5 @@
     <string name="app_name">Actions Hero</string>
     <string name="score_activity_name">All scores</string>
     <string name="back_to_main_screen">Back to main screen</string>
+    <string name="go">GO !</string>
 </resources>
