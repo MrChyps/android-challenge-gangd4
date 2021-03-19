@@ -2,6 +2,9 @@ package helloandroid.m2dl.gangd4_android_challenge_mobe.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -12,11 +15,13 @@ import helloandroid.m2dl.gangd4_android_challenge_mobe.R;
 
 public class EndGameActivity extends AppCompatActivity {
 
-   private Button btn_retry, btn_scores;
-   private ImageButton btn_returnMainMenu;
+   Button btn_retry, btn_scores;
+   ImageButton btn_returnMainMenu;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
+      getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+              WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_end_game);
 
@@ -44,7 +49,46 @@ public class EndGameActivity extends AppCompatActivity {
          Intent intent = new Intent(EndGameActivity.this, MainActivity.class);
          this.startActivity(intent);
       });
+
+      startRetryButtonAnimation();
    }
+
+
+   private void startRetryButtonAnimation() {
+      Animation animationUp = AnimationUtils.loadAnimation(this, R.anim.scale_up_text);
+      Animation animationDown = AnimationUtils.loadAnimation(this, R.anim.scale_down_text);
+      animationUp.setAnimationListener(new Animation.AnimationListener() {
+         @Override
+         public void onAnimationStart(Animation animation) {
+         }
+
+         @Override
+         public void onAnimationEnd(Animation animation) {
+            btn_retry.startAnimation(animationDown);
+         }
+
+         @Override
+         public void onAnimationRepeat(Animation animation) {
+         }
+      });
+
+      animationDown.setAnimationListener(new Animation.AnimationListener() {
+         @Override
+         public void onAnimationStart(Animation animation) {
+         }
+
+         @Override
+         public void onAnimationEnd(Animation animation) {
+            btn_retry.startAnimation(animationUp);
+         }
+
+         @Override
+         public void onAnimationRepeat(Animation animation) {
+         }
+      });
+      btn_retry.startAnimation(animationUp);
+   }
+
 
    @Override
    protected void onResume() {
