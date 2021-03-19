@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="helloandroid.m2dl.gangd4_android_challenge_mobe">
+        package="helloandroid.m2dl.gangd4_android_challenge_mobe">
 
     <application
         android:allowBackup="true"
@@ -16,11 +16,10 @@
             android:name=".activities.GameActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".activities.MainActivity"
-            android:screenOrientation="landscape">
+                android:name=".activities.MainActivity"
+                android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
