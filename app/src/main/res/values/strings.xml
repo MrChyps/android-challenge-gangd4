@@ -3,4 +3,9 @@
     <string name="score_activity_name">All scores</string>
     <string name="back_to_main_screen">Back to main screen</string>
     <string name="go">GO !</string>
+    <string name="play">PLAY</string>
+    <string name="retry">RETRY</string>
+    <string name="your_score">YOUR SCORE</string>
+    <string name="scores">SCORES</string>
+    <string name="return_to_main_menu">Return to main menu</string>
 </resources>
