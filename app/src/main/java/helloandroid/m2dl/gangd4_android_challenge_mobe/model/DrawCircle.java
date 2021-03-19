@@ -4,6 +4,8 @@ import android.graphics.drawable.Icon;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.Observer;
+
 import helloandroid.m2dl.gangd4_android_challenge_mobe.activities.GameActivity;
 
 public class DrawCircle extends TouchScreen {
@@ -18,6 +20,7 @@ public class DrawCircle extends TouchScreen {
     public boolean onTouch(View view, MotionEvent motionEvent) {
         switch (motionEvent.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
+                System.out.println(motionEvent.getX());
                 pointTouchDown.setXY(motionEvent.getX(), motionEvent.getY());
                 System.out.println("Touchscreen ACTION_DOWN :    "+ pointTouchDown.getY() + pointTouchDown.getX());
                 nbMove = 0;
@@ -37,5 +40,11 @@ public class DrawCircle extends TouchScreen {
     public boolean isACircle() {
         System.out.println("Touchscreen isACircle : "+  (nbMove > TouchScreen.MIN_MOVE  && pointTouchDown.almostEquals(pointTouchUp)));
         return nbMove > TouchScreen.MIN_MOVE  && pointTouchDown.almostEquals(pointTouchUp);
+    }
+
+    @Override
+    public synchronized void addObserver(Observer o) {
+        super.addObserver(o);
+
     }
 }
