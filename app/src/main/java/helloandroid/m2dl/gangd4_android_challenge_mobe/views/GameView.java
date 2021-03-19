@@ -41,17 +41,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
    public GameView(Context context, GameActivity gameActivity) {
       super(context);
+      this.gameActivity = gameActivity;
+      this.isLaunched = false;
       this.thread = new GameThread(getHolder(), this);
 
       this.redBounds = new ArrayList<>();
       this.yellowBounds = new ArrayList<>();
       this.greenBounds = new ArrayList<>();
-
-      initGame(this.getContext());
-      this.gameActivity = gameActivity;
-      this.isLaunched = false;
-      setFocusable(true);
-      getHolder().addCallback(this);
 
       this.backgroundColor = new Color(255, 255, 255, 255);
       this.ballColor = new Color(255, 0, 0, 0);
@@ -61,6 +57,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
       this.textPaint.setTextAlign(Paint.Align.CENTER);
       this.textPaint.setTextSize(200);
       this.textPaint.setColor(android.graphics.Color.BLACK);
+
+      initGame(this.getContext());
+      setFocusable(true);
+      getHolder().addCallback(this);
    }
 
    @Override
@@ -73,8 +73,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
          // Red zone
          paint.setColor(android.graphics.Color.RED);
-         int vertFact = 150;
-         int horFact = 100;
+         int vertFact = getWidth() / 10;
+         int horFact = getHeight() / 10;
          float left = getWidth() / 2f;
          float top = (getHeight() / 2f) - vertFact;
          float right = (getWidth() / 4f) - horFact;
@@ -95,9 +95,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
          // Green zone
          paint.setColor(android.graphics.Color.GREEN);
-         left -= (horFact * 2);
+         left -= (horFact * 1.25f);
          top = (getHeight() / 2f) - vertFact;
-         right += (horFact * 2);
+         right += (horFact * 1.25f);
          bottom = (getHeight() / 2f) + vertFact;
          canvas.drawRect(left, top, right, bottom, paint);
          greenBounds.add(left);
