@@ -1,5 +1,6 @@
 package helloandroid.m2dl.gangd4_android_challenge_mobe.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -12,9 +13,11 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import helloandroid.m2dl.gangd4_android_challenge_mobe.R;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.services.ScoreService;
 
 public class MainActivity extends AppCompatActivity {
 
+    private Context context;
     private TextView tv_MainTitle;
     private Button btn_play;
     private Button btn_score;
@@ -25,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ScoreService.initDatabase(this);
+        this.context = this;
 
         tv_MainTitle = findViewById(R.id.tv_ActivityName);
         btn_play = findViewById(R.id.play_button);
