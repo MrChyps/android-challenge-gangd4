@@ -29,6 +29,24 @@ public class GameActivity extends Activity implements SensorEventListener, View.
    private Sensor lightSensor;
    private TextView textView;
 
+   private boolean cycleStart;
+
+   private enum Scores {
+      SUPER(3),
+      GOOD(2),
+      CLOSE(1);
+
+      private final int value;
+
+      Scores(int value) {
+         this.value = value;
+      }
+
+      public int getValue() {
+         return value;
+      }
+   }
+
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -63,7 +81,6 @@ public class GameActivity extends Activity implements SensorEventListener, View.
       LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ActionBar.LayoutParams.FILL_PARENT, ActionBar.LayoutParams.WRAP_CONTENT);
       this.addContentView(linearLayout, layoutParams);
 
-      GameActivity gameActivity = this;
       new CountDownTimer(4000, 1000) {
          long number;
 
@@ -73,11 +90,13 @@ public class GameActivity extends Activity implements SensorEventListener, View.
          }
 
          public void onFinish() {
-            gv = new GameView(gameActivity.getBaseContext(), gameActivity);
-            gv.setOnTouchListener(gameActivity);
+            gv = new GameView(GameActivity.this.getBaseContext(), GameActivity.this);
+
+            gv.setOnTouchListener(GameActivity.this);
             setContentView(gv);
          }
       }.start();
+      this.cycleStart = true;
    }
 
    @Override
@@ -92,18 +111,47 @@ public class GameActivity extends Activity implements SensorEventListener, View.
    public boolean onTouch(View view, MotionEvent motionEvent) {
       if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
          this.gv.startGame();
+         boolean isRed = this.cycleStart && this.gv.checkIfInRed();
+         if (isRed) {
+            this.gv.addScore(Scores.CLOSE.getValue());
+            this.cycleStart = false;
+            this.startNewCycle();
+         }
+
+         boolean isYellow = this.cycleStart && this.gv.checkIfInYellow();
+         if (isYellow) {
+            this.gv.addScore(Scores.GOOD.getValue());
+            this.cycleStart = false;
+            this.startNewCycle();
+         }
+
+         boolean isGreen = this.cycleStart && this.gv.checkIfInGreen();
+         if (isGreen) {
+            this.gv.addScore(Scores.SUPER.getValue());
+            this.cycleStart = false;
+            this.startNewCycle();
+         }
+
+         if (!isRed && !isYellow && !isGreen) {
+            this.cycleStart = false;
+            this.backToEndGameActivity(null);
+         }
       }
       return true;
    }
 
-   public void sendGameOverBallPosition(Ball gameOverPosition) {
-      this.backToMainActivity(gameOverPosition);
+   public void startNewCycle() {
+      this.gv.initGame(this.gv.getContext());
+      this.cycleStart = true;
    }
 
-   public void backToMainActivity(Ball ball) {
-      Intent intent = new Intent(this, MainActivity.class);
-//      intent.putExtra("x", (int) ball.getX());
-//      intent.putExtra("score", (scoreService.getHighScore().getScore() != null) ? scoreService.getHighScore().getScore().intValue() : 0);
+   public void backToEndGameActivity(Ball ball) {
+      Intent intent = new Intent(this, EndGameActivity.class);
+      intent.putExtra("user_score", this.gv.getUserScore());
       startActivity(intent);
+   }
+
+   public void setCycleStart(boolean cycleStart) {
+      this.cycleStart = cycleStart;
    }
 }
