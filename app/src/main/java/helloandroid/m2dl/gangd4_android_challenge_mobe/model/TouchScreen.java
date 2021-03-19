@@ -1,13 +1,17 @@
 package helloandroid.m2dl.gangd4_android_challenge_mobe.model;
 
-public abstract class TouchScreen implements IAction {
+import android.view.View;
 
-    private String description;
-    private Type type;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.activities.GameActivity;
 
-    public TouchScreen(String description) {
-        this.description = description;
-        type = Type.INSTANT;
+public abstract class TouchScreen extends IAction implements View.OnTouchListener {
+
+    public static final int MIN_MOVE = 30;
+    protected Point pointTouchDown;
+    protected Point pointTouchUp;
+
+    public TouchScreen(GameActivity gameActivity, String description, ActionType actionType, String icon) {
+        super(gameActivity, description, actionType, Type.INSTANT, icon);
     }
 
 }

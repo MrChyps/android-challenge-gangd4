@@ -6,9 +6,6 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.Gravity;
@@ -22,17 +19,28 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+
 import helloandroid.m2dl.gangd4_android_challenge_mobe.R;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.Ball;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.IAction;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.MaskScreen;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.Touch;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.views.GameView;
 
-public class GameActivity extends Activity implements SensorEventListener, View.OnTouchListener {
+public class GameActivity extends Activity implements View.OnTouchListener, Observer {
+
 
    private GameView gv;
    private Sensor lightSensor;
    private TextView textView;
 
    private boolean cycleStart;
+
+   private List<IAction> actionsQueue;
 
    private enum Scores {
       SUPER(3),
@@ -57,13 +65,15 @@ public class GameActivity extends Activity implements SensorEventListener, View.
               WindowManager.LayoutParams.FLAG_FULLSCREEN);
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);     //  Fixed Portrait orientation
+      this.actionsQueue = new ArrayList<>();
 
-      SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-      Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-      sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
+//      SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+//      Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+//      sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
+//
+//      Sensor lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+//      sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_FASTEST);
 
-      Sensor lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-      sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_FASTEST);
 
       SharedPreferences.Editor editor = this.getPreferences(MODE_PRIVATE).edit();
       editor.putFloat("max_light_val", 1);
@@ -123,14 +133,6 @@ public class GameActivity extends Activity implements SensorEventListener, View.
    }
 
    @Override
-   public void onSensorChanged(SensorEvent event) {
-   }
-
-   @Override
-   public void onAccuracyChanged(Sensor sensor, int accuracy) {
-   }
-
-   @Override
    public boolean onTouch(View view, MotionEvent motionEvent) {
       if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
          this.gv.startGame();
@@ -160,6 +162,8 @@ public class GameActivity extends Activity implements SensorEventListener, View.
             this.backToEndGameActivity(null);
          }
       }
+      IAction turnLeft = new MaskScreen(this);
+      turnLeft.addObserver(this);
       return true;
    }
 
@@ -176,5 +180,51 @@ public class GameActivity extends Activity implements SensorEventListener, View.
 
    public void setCycleStart(boolean cycleStart) {
       this.cycleStart = cycleStart;
+   }
+
+   public void addActionToList(IAction action) {
+      this.actionsQueue.add(action);
+   }
+
+   public IAction popActionFromList() {
+      IAction action = null;
+      if (!actionsQueue.isEmpty()) {
+         action = actionsQueue.get(0);
+         this.actionsQueue.remove(0);
+      }
+      return action;
+   }
+
+   @Override
+   public void update(Observable o, Object arg) {
+      System.out.println("RESULT SUCCESSSS ? " + arg);
+
+//      if (((IAction) o).getType() == currentAction.getType()) {
+//         defineTiming(); // position de la balle et où elle est
+//         currentAction.deleteObserver(this);
+//         currentAction = getNextAction();
+//         currentAction.addObserver(this);
+//         // Vibrer
+//      }
+      switch (((IAction) o).getActionType()) {
+         case TURN_LEFT:
+            System.out.println("SUCCESSSSSS");
+            o.deleteObserver(this);
+            this.gv.setOnTouchListener(null);
+            IAction touch = new Touch(this);
+            touch.addObserver(this);
+            break;
+         case TOUCH:
+            System.out.println("SUCCESSSSSS V22222");
+            o.deleteObserver(this);
+            break;
+         case MASK_SCREEN:
+            System.out.println("SUCCESSSSSS");
+            o.deleteObserver(this);
+      }
+   }
+
+   public GameView getGv() {
+      return gv;
    }
 }
