@@ -1,17 +1,19 @@
 package helloandroid.m2dl.gangd4_android_challenge_mobe.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import helloandroid.m2dl.gangd4_android_challenge_mobe.R;
 
 public class EndGameActivity extends AppCompatActivity {
+
+    Button btn_retry, btn_scores;
+    ImageButton btn_returnMainMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,24 +22,35 @@ public class EndGameActivity extends AppCompatActivity {
 
         int score = getIntent().getIntExtra("user_score", 0);
 
-        Button btn_retry = findViewById(R.id.button_retry);
-        ImageButton btn_returnMainMenu = findViewById(R.id.button_returnMenu);
-        Button btn_scores = findViewById(R.id.button_scoresEndGame);
+        btn_retry = findViewById(R.id.button_retry);
+        btn_returnMainMenu = findViewById(R.id.button_returnMenu);
+        btn_scores = findViewById(R.id.button_scoresEndGame);
         TextView tv_score = findViewById(R.id.score);
 
         tv_score.setText(String.valueOf(score));
 
         btn_retry.setOnClickListener(v -> {
+            btn_retry.setEnabled(false);
             Intent intent = new Intent(EndGameActivity.this, GameActivity.class);
             this.startActivity(intent);
         });
         btn_scores.setOnClickListener(v -> {
+            btn_scores.setEnabled(false);
             Intent intent = new Intent(EndGameActivity.this, ScoreActivity.class);
             this.startActivity(intent);
         });
         btn_returnMainMenu.setOnClickListener(v -> {
+            btn_returnMainMenu.setEnabled(false);
             Intent intent = new Intent(EndGameActivity.this, MainActivity.class);
             this.startActivity(intent);
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        btn_returnMainMenu.setEnabled(true);
+        btn_scores.setEnabled(true);
+        btn_retry.setEnabled(true);
     }
 }
