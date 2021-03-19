@@ -134,6 +134,7 @@ public class GameActivity extends Activity implements SensorEventListener, View.
    public boolean onTouch(View view, MotionEvent motionEvent) {
       if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
          this.gv.startGame();
+
          boolean isRed = this.cycleStart && this.gv.checkIfInRed();
          if (isRed) {
             this.gv.addScore(Scores.CLOSE.getValue());
