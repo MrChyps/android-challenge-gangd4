@@ -1,0 +1,4 @@
+package helloandroid.m2dl.gangd4_android_challenge_mobe.model;
+
+public interface  IAction {
+}
