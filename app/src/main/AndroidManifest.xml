@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GangD4AndroidChallengeMOBE">
         <activity
+            android:name=".activities.EndGameActivity"
+            android:screenOrientation="landscape" />
+        <activity
             android:name=".activities.ScoreActivity"
             android:screenOrientation="landscape" />
         <activity

@@ -32,12 +32,12 @@ public class MainActivity extends AppCompatActivity {
 
         btn_play.setOnClickListener(v -> {
             Intent myIntent = new Intent(MainActivity.this, GameActivity.class);
-            MainActivity.this.startActivity(myIntent);
+            this.startActivity(myIntent);
         });
 
         btn_score.setOnClickListener(v -> {
             Intent myIntent = new Intent(MainActivity.this, ScoreActivity.class);
-            MainActivity.this.startActivity(myIntent);
+            this.startActivity(myIntent);
         });
 
         startMainTitleAnimation();
