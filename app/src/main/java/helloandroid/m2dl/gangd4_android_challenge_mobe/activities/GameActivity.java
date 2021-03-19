@@ -6,9 +6,6 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Vibrator;
@@ -23,11 +20,27 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Random;
+
 import helloandroid.m2dl.gangd4_android_challenge_mobe.R;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.ActionStop;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.ActionType;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.Ball;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.IAction;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.MaskScreen;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.Shake;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.SwipeLeft;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.SwipeRight;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.Touch;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.TurnLeft;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.TurnRight;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.views.GameView;
 
-public class GameActivity extends Activity implements SensorEventListener, View.OnTouchListener {
+public class GameActivity extends Activity implements View.OnTouchListener, Observer {
 
     private GameView gv;
     private Sensor lightSensor;
@@ -36,7 +49,9 @@ public class GameActivity extends Activity implements SensorEventListener, View.
 
     private boolean cycleStart;
 
-    private enum Scores {
+    private List<IAction> actionsQueue;
+
+    public enum Scores {
         SUPER(3),
         GOOD(2),
         CLOSE(1);
@@ -60,12 +75,9 @@ public class GameActivity extends Activity implements SensorEventListener, View.
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);     //  Fixed Portrait orientation
 
-        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
+        this.actionsQueue = new ArrayList<>();
 
-        Sensor lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-        sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_FASTEST);
+        this.initListOfRandomActions(10);
 
         SharedPreferences.Editor editor = this.getPreferences(MODE_PRIVATE).edit();
         editor.putFloat("max_light_val", 1);
@@ -119,19 +131,12 @@ public class GameActivity extends Activity implements SensorEventListener, View.
 
             public void onFinish() {
                 gv = new GameView(GameActivity.this, gameActivity);
-                gv.setOnTouchListener(gameActivity);
+                actionsQueue.get(0).addObserver(GameActivity.this);
+                System.out.println(actionsQueue.get(0).getDescription());
                 setContentView(gv);
             }
         }.start();
         this.cycleStart = true;
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
     @Override
@@ -180,11 +185,116 @@ public class GameActivity extends Activity implements SensorEventListener, View.
         Intent intent = new Intent(this, EndGameActivity.class);
         intent.putExtra("user_score", this.gv.getUserScore());
         startActivity(intent);
-        ViewGroup vg = (ViewGroup)(gv.getParent());
+        ViewGroup vg = (ViewGroup) (gv.getParent());
         vg.removeView(gv);
     }
 
     public void setCycleStart(boolean cycleStart) {
         this.cycleStart = cycleStart;
     }
+
+    private void initListOfRandomActions(int number) {
+        Random rand = new Random();
+        for (int i = 0; i < number; i++) {
+            int index = rand.nextInt(8);
+            ActionType type = ActionType.values()[index];
+            switch (type) {
+                case SWIPE_RIGHT:
+                    this.actionsQueue.add(new SwipeRight(this));
+                    break;
+                case SWIPE_LEFT:
+                    this.actionsQueue.add(new SwipeLeft(this));
+                    break;
+                case TOUCH:
+                    this.actionsQueue.add(new Touch(this));
+                    break;
+                case TURN_RIGHT:
+                    this.actionsQueue.add(new TurnRight(this));
+                    break;
+                case TURN_LEFT:
+                    this.actionsQueue.add(new TurnLeft(this));
+                    break;
+                case SHAKE:
+                    this.actionsQueue.add(new Shake(this));
+                    break;
+                case MASK_SCREEN:
+                    this.actionsQueue.add(new MaskScreen(this));
+                    break;
+                case STOP:
+                    this.actionsQueue.add(new ActionStop(this));
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    public IAction popActionFromList() {
+        IAction action = null;
+        if (!this.actionsQueue.isEmpty()) {
+            action = this.actionsQueue.get(0);
+            System.out.println("POPPED : " + action);
+            this.actionsQueue.remove(0);
+        }
+        if (this.actionsQueue.isEmpty()) {
+            this.initListOfRandomActions(10);
+        }
+        return action;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        System.out.println("RESULT SUCCESSSS ? " + arg);
+        IAction currentAction = this.popActionFromList();
+        if (((IAction) o).getType() == currentAction.getType()) {
+            System.out.println(actionsQueue.get(0).getActionType());
+            if (currentAction.getType().equals(ActionType.STOP)) {
+                gv.die();
+            } else {
+                defineTiming(); // position de la balle et où elle est
+                currentAction.deleteObserver(this);
+                currentAction = this.actionsQueue.get(0);
+                System.out.println(currentAction.getDescription());
+                currentAction.addObserver(this);
+                // Vibrer
+            }
+        }
+    }
+
+    private void defineTiming() {
+        boolean isRed = this.cycleStart && this.gv.checkIfInRed();
+        if (isRed) {
+            this.gv.addScore(Scores.CLOSE.getValue());
+            this.cycleStart = false;
+            this.startNewCycle();
+        }
+
+        boolean isYellow = this.cycleStart && this.gv.checkIfInYellow();
+        if (isYellow) {
+            this.gv.addScore(Scores.GOOD.getValue());
+            this.cycleStart = false;
+            this.startNewCycle();
+        }
+
+        boolean isGreen = this.cycleStart && this.gv.checkIfInGreen();
+        if (isGreen) {
+            this.gv.addScore(Scores.SUPER.getValue());
+            this.cycleStart = false;
+            this.startNewCycle();
+        }
+
+        if (!isRed && !isYellow && !isGreen) {
+            this.cycleStart = false;
+            this.backToEndGameActivity(null);
+        }
+    }
+
+    public List<IAction> getActionsQueue() {
+        return actionsQueue;
+    }
+
+    public GameView getGv() {
+        return gv;
+    }
+
 }

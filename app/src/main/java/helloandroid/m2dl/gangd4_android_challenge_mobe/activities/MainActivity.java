@@ -1,6 +1,7 @@
 package helloandroid.m2dl.gangd4_android_challenge_mobe.activities;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -21,7 +22,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         ScoreService.initDatabase(this);
 
@@ -39,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
             Intent myIntent = new Intent(MainActivity.this, ScoreActivity.class);
             this.startActivity(myIntent);
         });
-
         startMainTitleAnimation();
     }
 
