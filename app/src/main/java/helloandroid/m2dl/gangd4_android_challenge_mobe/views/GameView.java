@@ -9,7 +9,6 @@ import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -111,6 +110,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
          canvas.drawLine(0, (int) top, getWidth(), (int) top, paint);
          canvas.drawLine(0, (int) bottom, getWidth(), (int) bottom, paint);
 
+         this.textPaint.setTextSize(100);
+         int yPos = (int) ((getHeight() / 10) - ((textPaint.descent() + textPaint.ascent()) / 2));
+         canvas.drawText(String.valueOf(this.timePassed), getWidth() / 2f, yPos + 50, textPaint);
+
          paint.setARGB(this.ballColor.getAlpha(), this.ballColor.getRed(), this.ballColor.getGreen(), this.ballColor.getBlue());
          this.ball.draw(canvas, paint);
       }
@@ -122,25 +125,28 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
       this.greenBounds.clear();
    }
 
-   public boolean checkIfInRed(float y) {
+   public boolean checkIfInRed() {
+      float x = this.ball.getX();
       if (redBounds.size() == 2 && yellowBounds.size() == 2) {
-         return (y >= redBounds.get(0) && y < yellowBounds.get(0))
-                 || (y >= yellowBounds.get(1) && y <= redBounds.get(1));
+         return (x >= redBounds.get(0) && x < yellowBounds.get(0))
+                 || (x >= yellowBounds.get(1) && x <= redBounds.get(1));
       }
       return false;
    }
 
-   public boolean checkIfInYellow(float y) {
+   public boolean checkIfInYellow() {
+      float x = this.ball.getX();
       if (yellowBounds.size() == 2 && greenBounds.size() == 2) {
-         return (y >= yellowBounds.get(0) && y < greenBounds.get(0))
-                 || (y >= greenBounds.get(1) && y <= yellowBounds.get(1));
+         return (x >= yellowBounds.get(0) && x < greenBounds.get(0))
+                 || (x >= greenBounds.get(1) && x <= yellowBounds.get(1));
       }
       return false;
    }
 
-   public boolean checkIfInGreen(float y) {
+   public boolean checkIfInGreen() {
+      float x = this.ball.getX();
       if (greenBounds.size() == 2) {
-         return (y >= greenBounds.get(0) && y < greenBounds.get(1));
+         return (x >= greenBounds.get(0) && x < greenBounds.get(1));
       }
       return false;
    }
@@ -194,9 +200,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
       this.ball.updateBall(elapsed /*+ (timePassed / 10) // TODO acceleration off for now */);
       if (this.ball.isBallOutOfBounds()) {
          Ball oldBall = initGame(this.getContext());
-//         this.gameActivity.sendGameOverBallPosition(oldBall);
+         this.gameActivity.setCycleStart(true);
+         this.isLaunched = false;
+         this.gameActivity.backToEndGameActivity(this.ball);
 //         this.thread.setGameOver(true);
-         Toast.makeText(this.getContext(), "Game over !", Toast.LENGTH_LONG).show();
       }
    }
 
@@ -210,4 +217,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
       }
    }
 
+   public void addScore(int value) {
+      this.timePassed += value;
+   }
+
+   public int getUserScore() {
+      return (int) timePassed;
+   }
 }

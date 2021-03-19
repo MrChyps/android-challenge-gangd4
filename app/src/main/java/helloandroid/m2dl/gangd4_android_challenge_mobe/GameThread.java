@@ -37,10 +37,11 @@ public class GameThread extends Thread {
                   this.gameView.update(elapsed);
                   this.gameView.draw(canvas);
                }
-               this.gameView.increaseScore();
+//               this.gameView.increaseScore();
                time = now;
                Thread.sleep(5);
             } catch (Exception e) {
+               e.printStackTrace();
             } finally {
                if (canvas != null) {
                   try {
