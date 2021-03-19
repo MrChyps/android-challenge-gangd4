@@ -35,7 +35,6 @@ public class Shake extends IAction implements SensorEventListener {
 
                 float speed = Math.abs(x + y + z - lastX - lastY - lastZ) / diffTime * 10000;
 
-                Log.d("sensor", "shake detected w/ speed: " + speed);
                 if (speed > MIN_SHAKE_SPEED) {
                     Log.i("Action", "Tablette secouée");
                     setChanged();
