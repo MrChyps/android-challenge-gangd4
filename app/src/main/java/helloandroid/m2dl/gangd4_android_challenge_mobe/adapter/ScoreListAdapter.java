@@ -39,14 +39,18 @@ public class ScoreListAdapter extends BaseAdapter {
         } else {
             pos = (i / 2) + 5;
         }
-        Score currentScore = getItem(pos);
         if (view == null) {
             LayoutInflater layoutInflater = LayoutInflater.from(context);
             view = layoutInflater.inflate(R.layout.score_card, null);
             TextView position = view.findViewById(R.id.pos);
             TextView score = view.findViewById(R.id.score);
-            score.setText(currentScore.getScore().toString());
-            position.setText(pos + 1);
+            if(pos >= scoreList.size()){
+                score.setText("");
+                position.setText("");
+            } else {
+                score.setText(getItem(pos).getScore().toString());
+                position.setText(""+(pos + 1));
+            }
         }
         return view;
     }
