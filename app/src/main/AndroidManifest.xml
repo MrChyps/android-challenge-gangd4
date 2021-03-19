@@ -9,8 +9,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GangD4AndroidChallengeMOBE">
-        <activity android:name=".activities.ScoreActivity"></activity>
-        <activity android:name=".activities.GameActivity" />
+        <activity
+            android:name=".activities.ScoreActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".activities.GameActivity"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".activities.MainActivity"
             android:screenOrientation="landscape">
