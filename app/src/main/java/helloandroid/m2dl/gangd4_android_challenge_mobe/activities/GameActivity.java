@@ -147,8 +147,8 @@ public class GameActivity extends Activity implements View.OnTouchListener, Obse
    private void initListOfRandomActions(int number) {
       Random rand = new Random();
       for (int i = 0; i < number; i++) {
-         int ii = rand.nextInt(8);
-         ActionType type = ActionType.values()[ii];
+         int index = rand.nextInt(8);
+         ActionType type = ActionType.values()[index];
          switch (type) {
             case SWIPE_RIGHT:
                this.actionsQueue.add(new SwipeRight(this));
@@ -224,6 +224,7 @@ public class GameActivity extends Activity implements View.OnTouchListener, Obse
       System.out.println("RESULT SUCCESSSS ? " + arg);
       IAction currentAction = this.popActionFromList();
       if (((IAction) o).getType() == currentAction.getType()) {
+         System.out.println(actionsQueue.get(0).getActionType());
          if (currentAction.getType().equals(ActionType.STOP)) {
             gv.die();
          } else {
