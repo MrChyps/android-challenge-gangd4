@@ -5,10 +5,10 @@ import android.view.View;
 
 import helloandroid.m2dl.gangd4_android_challenge_mobe.activities.GameActivity;
 
-public class SwipeLeft extends TouchScreen {
+public class SwipeUp extends TouchScreen {
 
-    public SwipeLeft(GameActivity gameActivity) {
-        super(gameActivity,"Swipe Left", ActionType.SWIPE_LEFT, "icon");
+    public SwipeUp(GameActivity gameActivity) {
+        super(gameActivity,"Swipe Up", ActionType.SWIPE_UP, "icon");
     }
 
     @Override
@@ -17,7 +17,7 @@ public class SwipeLeft extends TouchScreen {
     }
 
     @Override
-    public void onSwipeLeft() {
+    public void onSwipeUp() {
         setChanged();
         this.notifyObservers(true);
     }
