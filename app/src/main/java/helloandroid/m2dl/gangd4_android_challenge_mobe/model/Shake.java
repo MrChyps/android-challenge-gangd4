@@ -1,17 +1,10 @@
 package helloandroid.m2dl.gangd4_android_challenge_mobe.model;
 
-public class Shake implements IAction {
+import helloandroid.m2dl.gangd4_android_challenge_mobe.activities.GameActivity;
 
-    private String description;
-    private Type type;
-    private ActionType actionType;
-    private String icon;
+public class Shake extends IAction {
 
-    public Shake() {
-        description = "Shake the tablet";
-        type = Type.INSTANT;
-        actionType = ActionType.SHAKE;
-        icon = "";
+    public Shake(GameActivity gameActivity) {
+        super(gameActivity, "Shake the tablet", ActionType.SHAKE, Type.INSTANT, "icon");
     }
-
 }

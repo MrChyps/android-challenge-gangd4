@@ -2,7 +2,11 @@ package helloandroid.m2dl.gangd4_android_challenge_mobe.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -11,6 +15,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.List;
 
 import helloandroid.m2dl.gangd4_android_challenge_mobe.R;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.services.ScoreService;
@@ -26,7 +32,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         ScoreService.initDatabase(this);
         this.context = this;
@@ -36,6 +44,12 @@ public class MainActivity extends AppCompatActivity {
         btn_score = findViewById(R.id.scores_button);
 
         btn_play.setOnClickListener(v -> {
+            SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+            List<Sensor> listSensor=
+                    sensorManager.getSensorList(Sensor.TYPE_ALL);
+            for (Sensor s : listSensor) {
+                Log.i("SENSORLIST",s.getName() +", "+s.getStringType()+", "+ s.getType());
+            }
             Intent myIntent = new Intent(MainActivity.this, GameActivity.class);
             MainActivity.this.startActivity(myIntent);
         });
@@ -44,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
             Intent myIntent = new Intent(MainActivity.this, ScoreActivity.class);
             MainActivity.this.startActivity(myIntent);
         });
-
         startMainTitleAnimation();
     }
 

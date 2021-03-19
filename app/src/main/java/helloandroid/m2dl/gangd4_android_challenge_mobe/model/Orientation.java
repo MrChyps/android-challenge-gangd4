@@ -1,12 +1,27 @@
 package helloandroid.m2dl.gangd4_android_challenge_mobe.model;
 
-public abstract class Orientation implements IAction {
+import android.hardware.Sensor;
 
-    private String description;
-    private Type type;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.activities.GameActivity;
 
-    public Orientation (String description) {
-        this.description = description;
-        type = Type.INSTANT;
+public abstract class Orientation extends IAction {
+
+    public static final int SENSOR_ORIENTATION_TYPE = 27;
+
+    public static final float NORMAL_ORIENTATION = (float) 1.0;
+    public static final float RIGHT_ORIENTATION = (float) 0.0;
+    public static final float LEFT_ORIENTATION = (float) 2.0;
+
+    private Sensor orientationSensor;
+    public Orientation (GameActivity gameActivity, String description, ActionType actionType, String icon) {
+        super(gameActivity, description, actionType, Type.INSTANT, icon);
+    }
+
+    public Sensor getOrientationSensor() {
+        return orientationSensor;
+    }
+
+    public void setOrientationSensor(Sensor orientationSensor) {
+        this.orientationSensor = orientationSensor;
     }
 }
