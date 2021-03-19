@@ -1,6 +1,10 @@
 package helloandroid.m2dl.gangd4_android_challenge_mobe.model;
 
+import android.graphics.drawable.Drawable;
+
 public class Ball extends Sprite {
+
+   private Drawable icon;
 
    public Ball(int width, int height) {
       super(width, height);

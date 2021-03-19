@@ -1,7 +1,9 @@
 package helloandroid.m2dl.gangd4_android_challenge_mobe.model;
 
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 
 public class Sprite {
    public static final int RADIUS = 35;
