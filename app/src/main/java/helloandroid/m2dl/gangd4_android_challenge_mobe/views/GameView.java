@@ -17,6 +17,7 @@ import java.util.List;
 
 import helloandroid.m2dl.gangd4_android_challenge_mobe.GameThread;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.activities.GameActivity;
+import helloandroid.m2dl.gangd4_android_challenge_mobe.model.ActionType;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.Ball;
 import helloandroid.m2dl.gangd4_android_challenge_mobe.model.Color;
 
@@ -33,7 +34,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
    private List<Float> greenBounds;
 
    private long timePassed;
-   private static final long SPEED_BOUND = 600;
+   private static final long SPEED_BOUND = 200;
 
    private final GameActivity gameActivity;
    private final TextPaint textPaint;
@@ -197,14 +198,24 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
    }
 
    public void update(long elapsed) {
-      this.ball.updateBall(elapsed /*+ (timePassed / 10) // TODO acceleration off for now */);
+      this.ball.updateBall(elapsed / 2 /*+ (timePassed / 10) // TODO acceleration off for now */);
+      ActionType type = this.gameActivity.getActionsQueue().get(0).getActionType();
       if (this.ball.isBallOutOfBounds()) {
-         Ball oldBall = initGame(this.getContext());
-         this.gameActivity.setCycleStart(true);
-         this.isLaunched = false;
-         this.gameActivity.backToEndGameActivity(this.ball);
-//         this.thread.setGameOver(true);
+         if (type == ActionType.STOP) {
+            this.addScore(GameActivity.Scores.GOOD.getValue());
+            this.gameActivity.setCycleStart(false);
+            this.gameActivity.startNewCycle();
+         } else {
+            this.die();
+         }
       }
+   }
+
+   public void die() {
+      Ball oldBall = initGame(this.getContext());
+      this.gameActivity.setCycleStart(true);
+      this.isLaunched = false;
+      this.gameActivity.backToEndGameActivity(this.ball);
    }
 
    public Boolean getIsLaunched() {
