@@ -3,7 +3,6 @@ package helloandroid.m2dl.gangd4_android_challenge_mobe.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -36,16 +35,25 @@ public class MainActivity extends AppCompatActivity {
         btn_score = findViewById(R.id.scores_button);
 
         btn_play.setOnClickListener(v -> {
+            btn_play.setEnabled(false);
             Intent myIntent = new Intent(MainActivity.this, GameActivity.class);
             this.startActivity(myIntent);
         });
 
         btn_score.setOnClickListener(v -> {
+            btn_score.setEnabled(false);
             Intent myIntent = new Intent(MainActivity.this, ScoreActivity.class);
             this.startActivity(myIntent);
         });
 
         startMainTitleAnimation();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        btn_score.setEnabled(true);
+        btn_play.setEnabled(true);
     }
 
     //Start the main menu title animation
