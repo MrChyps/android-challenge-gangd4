@@ -8,25 +8,51 @@
 
     <Button
         android:id="@+id/button_retry"
-        android:layout_width="200dp"
-        android:layout_height="92dp"
+        android:layout_width="264dp"
+        android:layout_height="124dp"
         android:layout_centerInParent="true"
-        android:text="RETRY" />
-
-    <Button
-        android:id="@+id/button_returnMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/button_retry"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:text="RETURN TO MENU" />
+        android:background="@android:color/transparent"
+        android:text="@string/retry"
+        android:textColor="#F00"
+        android:textSize="50sp" />
 
     <Button
         android:id="@+id/button_scoresEndGame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SCORES"
+        android:layout_below="@id/button_retry"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:background="@android:color/transparent"
+        android:text="@string/scores"
+        android:textColor="#C0C0C0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageButton
+        android:id="@+id/button_returnMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#FFFFFF"
+        app:srcCompat="@android:drawable/ic_menu_revert"
+        android:contentDescription="@string/return_to_main_menu" />
+
+    <TextView
+        android:id="@+id/tv_yourScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button_retry"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"
+        android:text="@string/your_score"
+        android:textSize="50sp" />
+
+    <TextView
+        android:id="@+id/tv_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/button_retry"
+        android:layout_marginBottom="50dp"
+        android:layout_toEndOf="@id/tv_yourScore"
+        android:textSize="50sp" />
 </RelativeLayout>

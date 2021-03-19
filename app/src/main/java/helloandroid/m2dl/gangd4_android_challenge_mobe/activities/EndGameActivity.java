@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import helloandroid.m2dl.gangd4_android_challenge_mobe.R;
 
@@ -15,9 +17,15 @@ public class EndGameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_end_game);
+
+        int score = getIntent().getIntExtra("user_score", 0);
+
         Button btn_retry = findViewById(R.id.button_retry);
-        Button btn_returnMainMenu = findViewById(R.id.button_returnMenu);
+        ImageButton btn_returnMainMenu = findViewById(R.id.button_returnMenu);
         Button btn_scores = findViewById(R.id.button_scoresEndGame);
+        TextView tv_score = findViewById(R.id.score);
+
+        tv_score.setText(String.valueOf(score));
 
         btn_retry.setOnClickListener(v -> {
             Intent intent = new Intent(EndGameActivity.this, GameActivity.class);
