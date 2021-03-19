@@ -58,8 +58,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void draw(Canvas canvas) {
-        super.draw(canvas);
         if (canvas != null) {
+            super.draw(canvas);
             Paint paint = new Paint();
             paint.setColor(android.graphics.Color.RED);
             canvas.drawARGB(255, 255, 255, 255);
