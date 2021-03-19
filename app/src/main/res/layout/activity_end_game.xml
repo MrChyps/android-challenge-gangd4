@@ -8,8 +8,8 @@
 
     <Button
         android:id="@+id/button_retry"
-        android:layout_width="264dp"
-        android:layout_height="124dp"
+        android:layout_width="233dp"
+        android:layout_height="107dp"
         android:layout_centerInParent="true"
         android:background="@android:color/transparent"
         android:text="@string/retry"
@@ -34,16 +34,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="#FFFFFF"
-        app:srcCompat="@android:drawable/ic_menu_revert"
-        android:contentDescription="@string/return_to_main_menu" />
+        android:contentDescription="@string/return_to_main_menu"
+        app:srcCompat="@android:drawable/ic_menu_revert" />
 
     <TextView
         android:id="@+id/tv_yourScore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/button_retry"
+        android:layout_above="@+id/tv_score"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="10dp"
         android:text="@string/your_score"
         android:textSize="50sp" />
 
@@ -51,8 +51,7 @@
         android:id="@+id/tv_score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/button_retry"
-        android:layout_marginBottom="50dp"
-        android:layout_toEndOf="@id/tv_yourScore"
+        android:layout_above="@+id/button_retry"
+        android:layout_centerHorizontal="true"
         android:textSize="50sp" />
 </RelativeLayout>
