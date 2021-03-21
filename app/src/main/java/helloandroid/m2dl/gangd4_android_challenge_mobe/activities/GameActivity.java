@@ -258,8 +258,8 @@ public class GameActivity extends Activity implements View.OnTouchListener, Obse
             defineTiming(currentAction); // position de la balle et où elle est
             currentAction.deleteObserver(this);
             currentAction = this.actionsQueue.get(0);
-            System.out.println(currentAction.getDescription());
             currentAction.addObserver(this);
+            this.gv.setDescription(currentAction.getDescription());
             // Vibrer
          }
       }
